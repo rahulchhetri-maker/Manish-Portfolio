@@ -1,21 +1,66 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    /* --- 1. Mobile Hamburger Navbar Functionality --- */
+    /* --- 1. Dual Dark & Light Theme State Machine Engine --- */
+    const pcThemeToggleBtn = document.getElementById("theme-toggle");
+    const mobileThemeToggleBtn = document.getElementById("theme-toggle-mobile");
+    const body = document.body;
+
+    // Check configuration memory storage logic for rendering user profile preference
+    const currentTheme = localStorage.getItem("theme") ? localStorage.getItem("theme") : null;
+
+    if (currentTheme) {
+        body.setAttribute("data-theme", currentTheme);
+        updateThemeIcons(currentTheme);
+    }
+
+    function updateThemeIcons(theme) {
+        const iconPc = pcThemeToggleBtn.querySelector("i");
+        const iconMobile = mobileThemeToggleBtn.querySelector("i");
+        const textMobile = mobileThemeToggleBtn.querySelector("span");
+
+        if (theme === "dark") {
+            iconPc.classList.remove("fa-moon");
+            iconPc.classList.add("fa-sun");
+            iconMobile.classList.remove("fa-moon");
+            iconMobile.classList.add("fa-sun");
+            textMobile.innerText = "Light Mode";
+        } else {
+            iconPc.classList.remove("fa-sun");
+            iconPc.classList.add("fa-moon");
+            iconMobile.classList.remove("fa-sun");
+            iconMobile.classList.add("fa-moon");
+            textMobile.innerText = "Dark Mode";
+        }
+    }
+
+    function toggleTheme() {
+        if (body.getAttribute("data-theme") === "dark") {
+            body.setAttribute("data-theme", "light");
+            localStorage.setItem("theme", "light");
+            updateThemeIcons("light");
+        } else {
+            body.setAttribute("data-theme", "dark");
+            localStorage.setItem("theme", "dark");
+            updateThemeIcons("dark");
+        }
+    }
+
+    pcThemeToggleBtn.addEventListener("click", toggleTheme);
+    mobileThemeToggleBtn.addEventListener("click", toggleTheme);
+
+
+    /* --- 2. Mobile Responsive Navigation Toggle Layer --- */
     const mobileMenuBtn = document.getElementById("mobile-menu-btn");
     const navMenu = document.getElementById("nav-menu");
     const navItems = document.querySelectorAll(".nav-item");
 
-    // Click bar button to slide open/close navigation panel
     mobileMenuBtn.addEventListener("click", () => {
         navMenu.classList.toggle("mobile-active");
-        
-        // Dynamic icon swap between lines and close-X
         const icon = mobileMenuBtn.querySelector("i");
         icon.classList.toggle("fa-bars");
         icon.classList.toggle("fa-xmark");
     });
 
-    // Close modern sliding drawer menu immediately when any tab is clicked 
     navItems.forEach(item => {
         item.addEventListener("click", () => {
             navMenu.classList.remove("mobile-active");
@@ -26,11 +71,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    /* --- 2. Scroll Trigger Pop-up Animation Engine --- */
+    /* --- 3. Viewport Boundary Popup Scroll Observer Engine --- */
     const popUpElements = document.querySelectorAll(".pop-up");
 
     const checkVisibility = () => {
-        // Triggers the animation when the top of the element hits 80% down the screen height
         const triggerBottom = (window.innerHeight / 5) * 4;
 
         popUpElements.forEach((element) => {
@@ -42,9 +86,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    // Run on initial page configurations setup 
     checkVisibility();
-
-    // Trigger pop-up animations dynamically on page navigation actions
     window.addEventListener("scroll", checkVisibility);
 });

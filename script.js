@@ -1,50 +1,26 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    /* --- 1. Dual Dark & Light Theme State Machine Engine --- */
+    /* --- 1. Synchronized Pill Switch Theme Toggle Engine --- */
     const pcThemeToggleBtn = document.getElementById("theme-toggle");
     const mobileThemeToggleBtn = document.getElementById("theme-toggle-mobile");
     const body = document.body;
 
-    // Check configuration memory storage logic for rendering user profile preference
-    const currentTheme = localStorage.getItem("theme") ? localStorage.getItem("theme") : null;
-
-    if (currentTheme) {
-        body.setAttribute("data-theme", currentTheme);
-        updateThemeIcons(currentTheme);
-    }
-
-    function updateThemeIcons(theme) {
-        const iconPc = pcThemeToggleBtn.querySelector("i");
-        const iconMobile = mobileThemeToggleBtn.querySelector("i");
-        const textMobile = mobileThemeToggleBtn.querySelector("span");
-
-        if (theme === "dark") {
-            iconPc.classList.remove("fa-moon");
-            iconPc.classList.add("fa-sun");
-            iconMobile.classList.remove("fa-moon");
-            iconMobile.classList.add("fa-sun");
-            textMobile.innerText = "Light Mode";
-        } else {
-            iconPc.classList.remove("fa-sun");
-            iconPc.classList.add("fa-moon");
-            iconMobile.classList.remove("fa-sun");
-            iconMobile.classList.add("fa-moon");
-            textMobile.innerText = "Dark Mode";
-        }
-    }
+    // Check system storage for saved configuration preference
+    const savedTheme = localStorage.getItem("theme") ? localStorage.getItem("theme") : "light";
+    body.setAttribute("data-theme", savedTheme);
 
     function toggleTheme() {
-        if (body.getAttribute("data-theme") === "dark") {
+        const activeTheme = body.getAttribute("data-theme");
+        if (activeTheme === "dark") {
             body.setAttribute("data-theme", "light");
             localStorage.setItem("theme", "light");
-            updateThemeIcons("light");
         } else {
             body.setAttribute("data-theme", "dark");
             localStorage.setItem("theme", "dark");
-            updateThemeIcons("dark");
         }
     }
 
+    // Bind event handlers to both switches
     pcThemeToggleBtn.addEventListener("click", toggleTheme);
     mobileThemeToggleBtn.addEventListener("click", toggleTheme);
 
@@ -61,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
         icon.classList.toggle("fa-xmark");
     });
 
+    // Automatically dismiss dropdown drawer on item clicks
     navItems.forEach(item => {
         item.addEventListener("click", () => {
             navMenu.classList.remove("mobile-active");
@@ -87,5 +64,5 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     checkVisibility();
-    window.addEventListener("scroll", checkVisibility);
+    window.addEventListener("scroll", checkVisibility, { passive: true });
 });

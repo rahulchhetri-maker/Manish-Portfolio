@@ -5,10 +5,10 @@
     box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     scroll-behavior: smooth;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
 }
 
-/* Light Mode System Colors */
+/* Light Mode Variables */
 :root {
     --primary-color: #2563eb; 
     --secondary-color: #1e293b; 
@@ -17,25 +17,29 @@
     --white: #ffffff;
     --navbar-bg: rgba(255, 255, 255, 0.95);
     --card-bg: #ffffff;
-    --card-border: rgba(0, 0, 0, 0.05);
+    --card-border: rgba(0, 0, 0, 0.06);
     --form-bg: #f8fafc;
+    --switch-bg: #cbd5e1;
+    --switch-knob-bg: #ffffff;
 }
 
-/* Dark Mode System Colors overrides */
+/* Eye-Friendly Soft Dark Mode Variables */
 [data-theme="dark"] {
     --primary-color: #38bdf8;
-    --secondary-color: #f1f5f9;
-    --light-bg: #0f172a;
-    --text-color: #cbd5e1;
-    --white: #1e293b;
-    --navbar-bg: rgba(15, 23, 42, 0.95);
-    --card-bg: #1e293b;
-    --card-border: rgba(255, 255, 255, 0.05);
-    --form-bg: #111827;
+    --secondary-color: #f8fafc;
+    --light-bg: #121212;         /* Matte dark foundation */
+    --text-color: #cbd5e1;        /* Low glare soft grey typography */
+    --white: #1e1e1e;             /* Elevated dark grey card backings */
+    --navbar-bg: rgba(24, 24, 24, 0.96);
+    --card-bg: #1e1e1e;
+    --card-border: rgba(255, 255, 255, 0.08);
+    --form-bg: #2d2d2d;
+    --switch-bg: #0284c7;         /* Active blue channel backing */
+    --switch-knob-bg: #ffffff;
 }
 
 body {
-    background-color: var(--white);
+    background-color: var(--light-bg);
     color: var(--text-color);
     overflow-x: hidden;
     line-height: 1.6;
@@ -50,12 +54,11 @@ body {
 .text-center { text-align: center; }
 .highlight { color: var(--primary-color); }
 
-/* Section Title Spacing Separator */
 .heading-line {
     width: 60px;
     height: 4px;
     background-color: var(--primary-color);
-    margin: 10px auto 60px auto; /* Increased gap to 60px for breathing space on desktop */
+    margin: 10px auto 60px auto;
     border-radius: 2px;
 }
 
@@ -66,6 +69,7 @@ header {
     width: 100%;
     background-color: var(--navbar-bg);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(8px);
     z-index: 1000;
 }
 
@@ -85,6 +89,12 @@ header {
 }
 .logo span { color: var(--primary-color); }
 
+.nav-controls {
+    display: none; /* Renders layout conditionally via Media breakpoints */
+    align-items: center;
+    gap: 15px;
+}
+
 .nav-links {
     display: flex;
     list-style: none;
@@ -100,21 +110,39 @@ header {
 }
 .nav-links a:hover { color: var(--primary-color); }
 
-/* Theme Buttons Styling */
-.theme-btn, .theme-btn-mobile {
-    background: none;
+/* --- Premium Rectangular Rounded Pill Switch Toggle CSS --- */
+.custom-switch-btn {
+    position: relative;
+    width: 54px;
+    height: 28px;
+    background-color: var(--switch-bg);
     border: none;
+    border-radius: 20px; /* Rounded corners */
     cursor: pointer;
-    font-size: 20px;
-    color: var(--secondary-color);
-    transition: color 0.3s ease;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
 }
-.theme-btn:hover { color: var(--primary-color); }
 
-/* Hide mobile settings on desktop viewport */
-.mobile-theme-li { display: none; }
+.switch-knob {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: var(--switch-knob-bg);
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    /* Light Mode Default Position: Slides right */
+    transform: translateX(26px); 
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-/* Hamburger Menu Icon Hidden on Desktop */
+/* Dark Mode Rule Overrides: Pulls the inner knob circle to the left */
+[data-theme="dark"] .switch-knob {
+    transform: translateX(2px);
+}
+
+/* Hamburger Icon Hidden on Desktop views */
 .menu-toggle {
     display: none;
     font-size: 24px;
@@ -124,18 +152,17 @@ header {
     cursor: pointer;
 }
 
-/* --- Global Action Buttons --- */
+/* --- Buttons --- */
 .btn {
     display: inline-block;
     padding: 12px 28px;
     background-color: var(--primary-color);
-    color: #ffffff;
+    color: #ffffff !important;
     text-decoration: none;
     border-radius: 30px;
     font-weight: 600;
     border: none;
     cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .btn:hover {
     transform: translateY(-3px);
@@ -152,7 +179,7 @@ header {
     padding-top: 80px;
 }
 [data-theme="dark"] .hero-section {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    background: linear-gradient(135deg, #121212 0%, #1c1c1c 100%);
 }
 
 .hero-container {
@@ -175,8 +202,9 @@ header {
     margin-bottom: 30px;
     color: #64748b;
 }
+[data-theme="dark"] .hero-text p { color: #94a3b8; }
 
-/* --- Fixed Responsive Profile Picture Area --- */
+/* --- Responsive Profile Picture Layout area --- */
 .hero-image {
     display: flex;
     justify-content: center;
@@ -187,9 +215,9 @@ header {
     height: 320px;
     object-fit: cover;
     border-radius: 50%;
-    border: 8px solid var(--navbar-bg);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    max-width: 100%; /* Keeps item boundary fully responsive */
+    border: 8px solid var(--white);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    max-width: 100%;
 }
 
 /* --- About Profile Layout --- */
@@ -198,7 +226,7 @@ header {
     max-width: 800px;
     margin: 0 auto;
     font-size: 18px;
-    color: #475569;
+    color: var(--text-color);
 }
 
 /* --- Academic Timeline Section --- */
@@ -214,7 +242,7 @@ header {
     background-color: var(--card-bg);
     padding: 30px;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
     border-top: 4px solid var(--primary-color);
     border-left: 1px solid var(--card-border);
     border-right: 1px solid var(--card-border);
@@ -224,6 +252,7 @@ header {
 .icon-box { font-size: 28px; color: var(--primary-color); margin-bottom: 15px; }
 .timeline-card h3 { color: var(--secondary-color); margin-bottom: 8px; }
 .institute { font-size: 14px; color: #64748b; font-weight: 600; margin-bottom: 5px; }
+[data-theme="dark"] .institute { color: #94a3b8; }
 
 .status {
     display: inline-block;
@@ -236,11 +265,11 @@ header {
     margin-bottom: 15px;
 }
 [data-theme="dark"] .status {
-    background-color: #111827;
+    background-color: #1e3a8a;
     color: #38bdf8;
 }
 
-/* --- Contact & App Triggers --- */
+/* --- Contact & App Handlers --- */
 .contact-section { background-color: var(--white); }
 .contact-container {
     display: grid;
@@ -252,31 +281,24 @@ header {
 .contact-info h3 { font-size: 24px; color: var(--secondary-color); margin-bottom: 15px; }
 .contact-info p { margin-bottom: 25px; }
 
-.info-item-link {
-    text-decoration: none;
-    color: inherit;
-}
-
+.info-item-link { text-decoration: none; color: inherit; }
 .info-item {
     display: flex;
     align-items: center;
     margin-bottom: 20px;
-    padding: 10px;
+    padding: 12px;
     border-radius: 8px;
-    transition: background-color 0.3s ease, color 0.3s ease;
 }
 .info-item-link:hover .info-item {
     background-color: var(--light-bg);
     color: var(--primary-color);
 }
-
 .info-item i { font-size: 20px; color: var(--primary-color); margin-right: 15px; }
 
 .socials a {
     font-size: 24px;
     color: var(--secondary-color);
     margin-right: 20px;
-    transition: color 0.3s ease;
 }
 .socials a:hover { color: var(--primary-color); }
 
@@ -295,98 +317,77 @@ header {
 
 /* --- Footer Area --- */
 footer {
-    background-color: var(--secondary-color);
+    background-color: #111827;
     color: #94a3b8;
     padding: 30px 20px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+[data-theme="dark"] footer {
+    background-color: #0b0f19;
 }
 
-/* --- Spring Scroll Animations Framework --- */
+/* --- Scroll Animation Setup --- */
 .pop-up {
     opacity: 0;
     transform: translateY(40px) scale(0.95);
     transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
                 transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-
 .pop-up.active {
     opacity: 1;
     transform: translateY(0) scale(1);
 }
 
-/* --- DEVICE MEDIA QUERY BREAKPOINTS --- */
+/* --- ADAPTIVE MOBILE VIEWPORT MEDIA QUERY --- */
 @media (max-width: 768px) {
     .container { padding: 50px 20px; }
     
-    /* Toggle Visibility configuration swaps */
+    /* Toggle visibility swaps: Hide PC toggle item, display mobile control block */
     .pc-theme-li { display: none; }
+    .nav-controls { display: flex; } 
     .menu-toggle { display: block; }
-    .mobile-theme-li { display: block; margin-top: 30px;}
 
-    .heading-line {
-        margin-bottom: 45px; /* Scaled down heading gaps perfectly for mobile screens */
-    }
+    .heading-line { margin-bottom: 45px; }
 
-    /* Transform navigation layout into sidebar app view style drawer */
+    /* Transform nav list container into modern overlay sliding panel */
     .nav-links {
         position: absolute;
-        top: 66px; 
+        top: 64px; 
         left: -100%;
         width: 100%;
-        height: calc(100vh - 66px);
+        height: calc(100vh - 64px);
         background-color: var(--navbar-bg);
         flex-direction: column;
         align-items: flex-start;
-        padding: 50px 40px;
-        transition: left 0.4s ease;
-        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+        padding: 40px 30px;
+        transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 15px 20px rgba(0, 0, 0, 0.05);
         border-top: 1px solid var(--card-border);
     }
     
     .nav-links.mobile-active { left: 0; }
-    .nav-links li { margin: 15px 0; margin-left: 0;}
-    .nav-links a { font-size: 20px; }
+    .nav-links li { margin: 15px 0; margin-left: 0; }
+    .nav-links a { font-size: 20px; display: block; width: 100%; }
 
-    .theme-btn-mobile {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        font-size: 20px;
-    }
-
-    /* Stack Hero content block vertically and reverse order */
+    /* Structural adjustments for smaller viewports */
     .hero-container {
         flex-direction: column-reverse;
         text-align: center;
-        padding-top: 40px;
-        gap: 20px;
+        padding-top: 30px;
+        gap: 15px;
     }
-    
     .hero-text h1 { font-size: 32px; }
     .hero-text p { font-size: 18px; }
     
-    /* FIX: Image containers scaling perfectly on mobile layout profiles */
-    .hero-image {
-        max-width: 260px;
-        margin-bottom: 20px;
-    }
-    .profile-pic {
-        width: 100%; 
-        height: auto; 
-        max-width: 260px;
-        border: 5px solid var(--navbar-bg);
-    }
+    .hero-image { max-width: 250px; margin-bottom: 15px; }
+    .profile-pic { width: 100%; height: auto; max-width: 250px; border: 5px solid var(--white); }
 
-    /* Convert row grid columns into block rows */
-    .contact-container {
-        grid-template-columns: 1fr;
-        gap: 40px;
-    }
+    .contact-container { grid-template-columns: 1fr; gap: 35px; }
     .contact-info { text-align: center; }
-    .info-item { justify-content: center; margin-bottom: 10px;}
-    .socials { margin-top: 20px; }
+    .info-item { justify-content: center; }
 }
 
 @media (max-width: 480px) {
-    .hero-text h1 { font-size: 28px; }
-    .hero-image, .profile-pic { max-width: 200px; }
+    .hero-text h1 { font-size: 26px; }
+    .hero-image, .profile-pic { max-width: 190px; }
 }

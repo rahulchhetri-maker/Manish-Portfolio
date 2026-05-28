@@ -1,0 +1,310 @@
+/* --- Global Reset & Variables --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    scroll-behavior: smooth;
+}
+
+:root {
+    --primary-color: #2563eb; 
+    --secondary-color: #1e293b; 
+    --light-bg: #f8fafc;
+    --text-color: #334155;
+    --white: #ffffff;
+}
+
+body {
+    background-color: var(--white);
+    color: var(--text-color);
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 80px 20px;
+}
+
+.text-center { text-align: center; }
+.highlight { color: var(--primary-color); }
+
+.heading-line {
+    width: 60px;
+    height: 4px;
+    background-color: var(--primary-color);
+    margin: 10px auto 40px auto;
+    border-radius: 2px;
+}
+
+/* --- Header / Navbar --- */
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--secondary-color);
+}
+.logo span { color: var(--primary-color); }
+
+.nav-links {
+    display: flex;
+    list-style: none;
+}
+
+.nav-links li { margin-left: 25px; }
+.nav-links a {
+    text-decoration: none;
+    color: var(--secondary-color);
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+.nav-links a:hover { color: var(--primary-color); }
+
+/* Hidden on desktop by default */
+.menu-toggle {
+    display: none;
+    font-size: 24px;
+    background: none;
+    border: none;
+    color: var(--secondary-color);
+    cursor: pointer;
+}
+
+/* --- Buttons --- */
+.btn {
+    display: inline-block;
+    padding: 12px 28px;
+    background-color: var(--primary-color);
+    color: var(--white);
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+}
+.btn.block { width: 100%; text-align: center; }
+
+/* --- Hero Section --- */
+.hero-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
+    padding-top: 80px;
+}
+
+.hero-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    width: 100%;
+}
+
+.hero-text h1 {
+    font-size: 48px;
+    color: var(--secondary-color);
+    margin-bottom: 15px;
+}
+.hero-text p {
+    font-size: 20px;
+    margin-bottom: 30px;
+    color: #64748b;
+}
+
+/* Photo Placeholder */
+.image-placeholder {
+    width: 320px;
+    height: 320px;
+    background-color: #e2e8f0;
+    border: 4px solid var(--white);
+    border-radius: 50%;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #94a3b8;
+    overflow: hidden;
+}
+.image-placeholder i { font-size: 64px; margin-bottom: 10px; }
+
+/* --- About Section --- */
+.about-section { background-color: var(--white); }
+.about-section p {
+    max-width: 800px;
+    margin: 0 auto;
+    font-size: 18px;
+    color: #475569;
+}
+
+/* --- Education Section --- */
+.education-section { background-color: var(--light-bg); }
+.timeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.timeline-card {
+    background-color: var(--white);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    border-top: 4px solid var(--primary-color);
+}
+
+.icon-box { font-size: 28px; color: var(--primary-color); margin-bottom: 15px; }
+.timeline-card h3 { color: var(--secondary-color); margin-bottom: 8px; }
+
+.status {
+    display: inline-block;
+    padding: 4px 12px;
+    background-color: #dbeafe;
+    color: var(--primary-color);
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+/* --- Contact Section --- */
+.contact-section { background-color: var(--white); }
+.contact-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    margin-top: 20px;
+}
+
+.contact-info h3 { font-size: 24px; color: var(--secondary-color); margin-bottom: 15px; }
+.contact-info p { margin-bottom: 25px; }
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.info-item i { font-size: 20px; color: var(--primary-color); margin-right: 15px; }
+
+.socials a {
+    font-size: 24px;
+    color: var(--secondary-color);
+    margin-right: 20px;
+    transition: color 0.3s ease;
+}
+.socials a:hover { color: var(--primary-color); }
+
+.contact-form .form-group { margin-bottom: 20px; }
+.contact-form input, .contact-form textarea {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    background-color: var(--light-bg);
+}
+.contact-form input:focus, .contact-form textarea:focus { border-color: var(--primary-color); }
+
+/* --- Footer --- */
+footer {
+    background-color: var(--secondary-color);
+    color: #94a3b8;
+    padding: 30px 20px;
+}
+
+/* --- Core Scroll Animation Setup --- */
+.pop-up {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pop-up.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* --- RESPONSIVE MEDIA QUERIES (PC & MOBILE OPTIMIZATION) --- */
+@media (max-width: 768px) {
+    .container { padding: 50px 20px; }
+
+    /* Show hamburger menu toggle button */
+    .menu-toggle { display: block; }
+
+    /* Transform navigation layout into a mobile dropdown layout */
+    .nav-links {
+        position: absolute;
+        top: 70px;
+        left: -100%; /* Hidden off-screen left */
+        width: 100%;
+        height: calc(100vh - 70px);
+        background-color: rgba(255, 255, 255, 0.98);
+        flex-direction: column;
+        align-items: center;
+        padding-top: 50px;
+        transition: left 0.4s ease;
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Active utility class triggered by JS to open the sliding drawer menu */
+    .nav-links.mobile-active { left: 0; }
+
+    .nav-links li {
+        margin: 20px 0;
+    }
+    .nav-links a { font-size: 22px; }
+
+    /* Stack Hero layout elements vertically on smaller Viewports */
+    .hero-container {
+        flex-direction: column-reverse;
+        text-align: center;
+        padding-top: 40px;
+    }
+    .hero-text h1 { font-size: 34px; }
+    .hero-text p { font-size: 18px; }
+    
+    .image-placeholder {
+        margin-bottom: 40px;
+        width: 240px;
+        height: 240px;
+    }
+
+    /* Stack contact elements sequentially on smaller viewports */
+    .contact-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    .contact-info { text-align: center; }
+    .info-item { justify-content: center; }
+    .socials { margin-top: 20px; }
+}

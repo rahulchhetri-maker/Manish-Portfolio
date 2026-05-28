@@ -261,328 +261,341 @@
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        const themeToggle = document.getElementById('themeToggle');
-        const settingsBtn = document.getElementById('settingsBtn');
-        const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-        const settingsModal = document.getElementById('settingsModal');
-        const startScreen = document.getElementById('startScreen');
-        const scoreDisplay = document.getElementById('scoreDisplay');
-        const menuTitle = document.getElementById('menuTitle');
-        const menuInstruction = document.getElementById('menuInstruction');
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const themeToggle = document.getElementById('themeToggle');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+    const settingsModal = document.getElementById('settingsModal');
+    const startScreen = document.getElementById('startScreen');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const menuTitle = document.getElementById('menuTitle');
+    const menuInstruction = document.getElementById('menuInstruction');
 
-        let gameState = 'START';
-        let score = 0;
-        let particles = [];
-        let pipes = [];
-        let frameCount = 0;
+    let gameState = 'START';
+    let score = 0;
+    let particles = [];
+    let pipes = [];
+    let frameCount = 0;
 
-        let config = {
-            theme: 'light',
-            difficulty: 'normal',
-            graphics: 'high',
-            mode: 'classic'
-        };
+    let config = {
+        theme: 'light',
+        difficulty: 'normal',
+        graphics: 'high',
+        mode: 'classic'
+    };
 
-        // Ratios instead of fixed pixels ensures sizing updates perfectly based on any screen dimensions
-        let scaleFactor = 1;
-        const baseWidth = 400;
-        const baseHeight = 700;
+    let scaleFactor = 1;
+    const baseWidth = 400;
+    const baseHeight = 700;
 
-        function resizeCanvas() {
-            const viewport = document.querySelector('.game-viewport');
-            const viewWidth = viewport.clientWidth;
-            const viewHeight = viewport.clientHeight;
+    function resizeCanvas() {
+        const viewport = document.querySelector('.game-viewport');
+        const viewWidth = viewport.clientWidth;
+        const viewHeight = viewport.clientHeight;
 
-            // Maintain the 400x700 structural ratio safely across any screen
-            const ratio = baseWidth / baseHeight;
-            let width = viewWidth;
-            let height = viewWidth / ratio;
+        const ratio = baseWidth / baseHeight;
+        let width = viewWidth;
+        let height = viewWidth / ratio;
 
-            if (height > viewHeight) {
-                height = viewHeight;
-                width = viewHeight * ratio;
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-            
-            // Generate standard scale multiplier relative to base architecture
-            scaleFactor = height / baseHeight;
-            resetGame();
+        if (height > viewHeight) {
+            height = viewHeight;
+            width = viewHeight * ratio;
         }
 
-        // Configuration relative multipliers
-        const settingsMatrix = {
-            easy: { gapRatio: 0.26, speedRatio: 0.006, pipeInterval: 100 },
-            normal: { gapRatio: 0.21, speedRatio: 0.008, pipeInterval: 85 },
-            hard: { gapRatio: 0.17, speedRatio: 0.010, pipeInterval: 70 }
-        };
+        canvas.width = width;
+        canvas.height = height;
+        scaleFactor = height / baseHeight;
+        resetGame();
+    }
 
-        const bird = {
-            x: 0, y: 0, radius: 0, velocity: 0,
-            gravity: 0.38, jump: -6.8, angle: 0,
+    const settingsMatrix = {
+        easy: { gapRatio: 0.26, speedRatio: 0.006, pipeInterval: 100 },
+        normal: { gapRatio: 0.21, speedRatio: 0.008, pipeInterval: 85 },
+        hard: { gapRatio: 0.17, speedRatio: 0.010, pipeInterval: 70 }
+    };
 
-            init() {
-                this.x = canvas.width * 0.22;
-                this.y = canvas.height / 2;
-                this.radius = 14 * scaleFactor;
-                this.velocity = 0;
-            },
-            update() {
-                let currentGravity = (config.mode === 'gravity' ? -this.gravity : this.gravity) * scaleFactor;
-                this.velocity += currentGravity;
-                this.y += this.velocity;
+    const bird = {
+        x: 0, y: 0, radius: 0, velocity: 0,
+        gravity: 0.38, jump: -6.8, angle: 0,
 
-                if (config.mode === 'gravity') {
-                    this.angle = Math.max(-Math.PI/6, Math.min(Math.PI/3, -this.velocity * 0.07 / scaleFactor));
-                } else {
-                    this.angle = Math.max(-Math.PI/6, Math.min(Math.PI/3, this.velocity * 0.07 / scaleFactor));
-                }
+        init() {
+            this.x = canvas.width * 0.22;
+            this.y = canvas.height / 2;
+            this.radius = 14 * scaleFactor;
+            this.velocity = 0;
+        },
+        update() {
+            let currentGravity = (config.mode === 'gravity' ? -this.gravity : this.gravity) * scaleFactor;
+            this.velocity += currentGravity;
+            this.y += this.velocity;
 
-                if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
+            if (config.mode === 'gravity') {
+                this.angle = Math.max(-Math.PI/6, Math.min(Math.PI/3, -this.velocity * 0.07 / scaleFactor));
+            } else {
+                this.angle = Math.max(-Math.PI/6, Math.min(Math.PI/3, this.velocity * 0.07 / scaleFactor));
+            }
+
+            if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
+                endGame();
+            }
+        },
+        jumpAction() {
+            const calculatedJump = this.jump * scaleFactor;
+            this.velocity = config.mode === 'gravity' ? -calculatedJump : calculatedJump;
+            if(config.graphics === 'high') createFlapParticles(this.x, this.y);
+        },
+        draw() {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.angle);
+
+            if(config.graphics === 'high') {
+                ctx.shadowBlur = 12 * scaleFactor;
+                ctx.shadowColor = '#f59e0b';
+            }
+            
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(this.radius * 0.4, -this.radius * 0.25, this.radius * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(this.radius * 0.45, -this.radius * 0.25, this.radius * 0.12, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.moveTo(this.radius * 0.75, -this.radius * 0.1);
+            ctx.lineTo(this.radius * 1.5,  this.radius * 0.1);
+            ctx.lineTo(this.radius * 0.75,  this.radius * 0.3);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+        }
+    };
+
+    themeToggle.addEventListener('change', (e) => {
+        const chosenTheme = e.target.checked ? 'dark' : 'light';
+        document.body.setAttribute('data-theme', chosenTheme);
+        config.theme = chosenTheme;
+    });
+
+    settingsBtn.addEventListener('click', (e) => { e.stopPropagation(); settingsModal.classList.remove('hidden'); });
+    // Fix: Allow mobile users to tap settings buttons seamlessly
+    settingsBtn.addEventListener('touchstart', (e) => { e.stopPropagation(); settingsModal.classList.remove('hidden'); });
+
+    closeSettingsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        config.difficulty = document.getElementById('difficulty').value;
+        config.graphics = document.getElementById('graphics').value;
+        config.mode = document.getElementById('gameMode').value;
+        settingsModal.classList.add('hidden');
+        resetGame();
+    });
+    closeSettingsBtn.addEventListener('touchstart', (e) => {
+        e.stopPropagation();
+        config.difficulty = document.getElementById('difficulty').value;
+        config.graphics = document.getElementById('graphics').value;
+        config.mode = document.getElementById('gameMode').value;
+        settingsModal.classList.add('hidden');
+        resetGame();
+    });
+
+    function createFlapParticles(x, y) {
+        for(let i=0; i<5; i++) {
+            particles.push({
+                x: x, y: y,
+                vx: (-1.5 - Math.random() * 2) * scaleFactor,
+                vy: (Math.random() - 0.5) * 3 * scaleFactor,
+                radius: (2 + Math.random() * 3) * scaleFactor,
+                alpha: 1,
+                color: config.theme === 'dark' ? '#38bdf8' : '#3b82f6'
+            });
+        }
+    }
+
+    function generatePipes() {
+        const setup = settingsMatrix[config.difficulty];
+        const gapSpace = canvas.height * setup.gapRatio;
+        const minHeight = canvas.height * 0.12;
+        const maxHeight = canvas.height - gapSpace - minHeight;
+        const topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+
+        pipes.push({
+            x: canvas.width,
+            topHeight: topHeight,
+            bottomY: topHeight + gapSpace,
+            width: 60 * scaleFactor,
+            passed: false
+        });
+    }
+
+    function updatePipes() {
+        const setup = settingsMatrix[config.difficulty];
+        if (frameCount % setup.pipeInterval === 0) generatePipes();
+
+        const speed = canvas.width * setup.speedRatio;
+
+        for(let i = pipes.length - 1; i >= 0; i--) {
+            let pipe = pipes[i];
+            pipe.x -= speed;
+
+            if (bird.x + bird.radius > pipe.x && bird.x - bird.radius < pipe.x + pipe.width) {
+                if (bird.y - bird.radius < pipe.topHeight || bird.y + bird.radius > pipe.bottomY) {
                     endGame();
                 }
-            },
-            jumpAction() {
-                const calculatedJump = this.jump * scaleFactor;
-                this.velocity = config.mode === 'gravity' ? -calculatedJump : calculatedJump;
-                if(config.graphics === 'high') createFlapParticles(this.x, this.y);
-            },
-            draw() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.angle);
-
-                if(config.graphics === 'high') {
-                    ctx.shadowBlur = 12 * scaleFactor;
-                    ctx.shadowColor = '#f59e0b';
-                }
-                
-                // Bird Main Arc
-                ctx.fillStyle = '#f59e0b';
-                ctx.beginPath();
-                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Adaptive Eyes
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath();
-                ctx.arc(this.radius * 0.4, -this.radius * 0.25, this.radius * 0.3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#000000';
-                ctx.beginPath();
-                ctx.arc(this.radius * 0.45, -this.radius * 0.25, this.radius * 0.12, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Beak
-                ctx.fillStyle = '#ef4444';
-                ctx.beginPath();
-                ctx.moveTo(this.radius * 0.75, -this.radius * 0.1);
-                ctx.lineTo(this.radius * 1.5,  this.radius * 0.1);
-                ctx.lineTo(this.radius * 0.75,  this.radius * 0.3);
-                ctx.closePath();
-                ctx.fill();
-
-                ctx.restore();
             }
-        };
 
-        // Theme Switch Logic
-        themeToggle.addEventListener('change', (e) => {
-            const chosenTheme = e.target.checked ? 'dark' : 'light';
-            document.body.setAttribute('data-theme', chosenTheme);
-            config.theme = chosenTheme;
+            if (!pipe.passed && pipe.x + pipe.width < bird.x) {
+                pipe.passed = true;
+                score++;
+                scoreDisplay.innerText = score;
+            }
+            if(pipe.x + pipe.width < 0) pipes.splice(i, 1);
+        }
+    }
+
+    function drawPipes() {
+        pipes.forEach(pipe => {
+            ctx.save();
+            let mainColor = config.theme === 'dark' ? '#059669' : '#10b981';
+            let rimColor = config.theme === 'dark' ? '#34d399' : '#047857';
+            
+            ctx.fillStyle = mainColor;
+            ctx.strokeStyle = rimColor;
+            ctx.lineWidth = 2.5 * scaleFactor;
+
+            ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
+            ctx.strokeRect(pipe.x, -5, pipe.width, pipe.topHeight + 5);
+            
+            ctx.fillStyle = rimColor;
+            let lipHeight = 20 * scaleFactor;
+            ctx.fillRect(pipe.x - (3 * scaleFactor), pipe.topHeight - lipHeight, pipe.width + (6 * scaleFactor), lipHeight);
+
+            ctx.fillStyle = mainColor;
+            ctx.fillRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
+            ctx.strokeRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY + 5);
+            
+            ctx.fillStyle = rimColor;
+            ctx.fillRect(pipe.x - (3 * scaleFactor), pipe.bottomY, pipe.width + (6 * scaleFactor), lipHeight);
+
+            ctx.restore();
         });
+    }
 
-        // Settings Dialog Handlers
-        settingsBtn.addEventListener('click', (e) => { e.stopPropagation(); settingsModal.classList.remove('hidden'); });
-        closeSettingsBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            config.difficulty = document.getElementById('difficulty').value;
-            config.graphics = document.getElementById('graphics').value;
-            config.mode = document.getElementById('gameMode').value;
-            settingsModal.classList.add('hidden');
+    function drawBackground() {
+        let gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        if (config.theme === 'dark') {
+            gradient.addColorStop(0, '#1e1b4b'); gradient.addColorStop(1, '#020617');
+        } else {
+            gradient.addColorStop(0, '#bae6fd'); gradient.addColorStop(1, '#f1f5f9');
+        }
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (config.graphics === 'high') {
+            ctx.strokeStyle = config.theme === 'dark' ? 'rgba(56, 189, 248, 0.05)' : 'rgba(59, 130, 246, 0.05)';
+            ctx.lineWidth = 1.5;
+            let step = 35 * scaleFactor;
+            for(let i = 0; i < canvas.width; i += step) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
+            for(let j = 0; j < canvas.height; j += step) {
+                ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
+            }
+        }
+    }
+
+    function resetGame() {
+        bird.init();
+        pipes = [];
+        particles = [];
+        score = 0;
+        frameCount = 0;
+        scoreDisplay.innerText = score;
+    }
+
+    function triggerAction() {
+        if (!settingsModal.classList.contains('hidden')) return;
+
+        if (gameState === 'START' || gameState === 'GAMEOVER') {
             resetGame();
-        });
-
-        function createFlapParticles(x, y) {
-            for(let i=0; i<5; i++) {
-                particles.push({
-                    x: x, y: y,
-                    vx: (-1.5 - Math.random() * 2) * scaleFactor,
-                    vy: (Math.random() - 0.5) * 3 * scaleFactor,
-                    radius: (2 + Math.random() * 3) * scaleFactor,
-                    alpha: 1,
-                    color: config.theme === 'dark' ? '#38bdf8' : '#3b82f6'
-                });
-            }
+            gameState = 'PLAYING';
+            startScreen.classList.add('hidden');
+        } else if (gameState === 'PLAYING') {
+            bird.jumpAction();
         }
+    }
 
-        function generatePipes() {
-            const setup = settingsMatrix[config.difficulty];
-            const gapSpace = canvas.height * setup.gapRatio;
-            const minHeight = canvas.height * 0.12;
-            const maxHeight = canvas.height - gapSpace - minHeight;
-            const topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+    function endGame() {
+        gameState = 'GAMEOVER';
+        menuTitle.innerText = "GAME OVER";
+        menuInstruction.innerText = `Final Score: ${score}\n\nTap Screen to Restart`;
+        startScreen.classList.remove('hidden');
+    }
 
-            pipes.push({
-                x: canvas.width,
-                topHeight: topHeight,
-                bottomY: topHeight + gapSpace,
-                width: 60 * scaleFactor,
-                passed: false
-            });
-        }
+    // --- FIX: Bulletproof Universal Input Processing Engine ---
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerAction(); }
+    });
 
-        function updatePipes() {
-            const setup = settingsMatrix[config.difficulty];
-            if (frameCount % setup.pipeInterval === 0) generatePipes();
+    // Capture taps on the Canvas itself
+    canvas.addEventListener('touchstart', (e) => { 
+        e.preventDefault(); 
+        triggerAction(); 
+    }, { passive: false });
+    
+    canvas.addEventListener('mousedown', (e) => { 
+        triggerAction(); 
+    });
 
-            const speed = canvas.width * setup.speedRatio;
+    // Capture taps directly on the text/overlay layers so text blocks don't swallow inputs
+    startScreen.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        triggerAction();
+    }, { passive: false });
 
-            for(let i = pipes.length - 1; i >= 0; i--) {
-                let pipe = pipes[i];
-                pipe.x -= speed;
+    startScreen.addEventListener('mousedown', (e) => {
+        triggerAction();
+    });
 
-                // Precision Box Collision Tracking
-                if (bird.x + bird.radius > pipe.x && bird.x - bird.radius < pipe.x + pipe.width) {
-                    if (bird.y - bird.radius < pipe.topHeight || bird.y + bird.radius > pipe.bottomY) {
-                        endGame();
-                    }
-                }
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 200));
 
-                if (!pipe.passed && pipe.x + pipe.width < bird.x) {
-                    pipe.passed = true;
-                    score++;
-                    scoreDisplay.innerText = score;
-                }
-                if(pipe.x + pipe.width < 0) pipes.splice(i, 1);
-            }
-        }
-
-        function drawPipes() {
-            pipes.forEach(pipe => {
-                ctx.save();
-                let mainColor = config.theme === 'dark' ? '#059669' : '#10b981';
-                let rimColor = config.theme === 'dark' ? '#34d399' : '#047857';
-                
-                ctx.fillStyle = mainColor;
-                ctx.strokeStyle = rimColor;
-                ctx.lineWidth = 2.5 * scaleFactor;
-
-                // Top Tube Segment
-                ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
-                ctx.strokeRect(pipe.x, -5, pipe.width, pipe.topHeight + 5);
-                
-                // Top Lip Rim
-                ctx.fillStyle = rimColor;
-                let lipHeight = 20 * scaleFactor;
-                ctx.fillRect(pipe.x - (3 * scaleFactor), pipe.topHeight - lipHeight, pipe.width + (6 * scaleFactor), lipHeight);
-
-                // Bottom Tube Segment
-                ctx.fillStyle = mainColor;
-                ctx.fillRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
-                ctx.strokeRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY + 5);
-                
-                // Bottom Lip Rim
-                ctx.fillStyle = rimColor;
-                ctx.fillRect(pipe.x - (3 * scaleFactor), pipe.bottomY, pipe.width + (6 * scaleFactor), lipHeight);
-
-                ctx.restore();
-            });
-        }
-
-        function drawBackground() {
-            let gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            if (config.theme === 'dark') {
-                gradient.addColorStop(0, '#1e1b4b'); gradient.addColorStop(1, '#020617');
-            } else {
-                gradient.addColorStop(0, '#bae6fd'); gradient.addColorStop(1, '#f1f5f9');
-            }
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            if (config.graphics === 'high') {
-                ctx.strokeStyle = config.theme === 'dark' ? 'rgba(56, 189, 248, 0.05)' : 'rgba(59, 130, 246, 0.05)';
-                ctx.lineWidth = 1.5;
-                let step = 35 * scaleFactor;
-                for(let i = 0; i < canvas.width; i += step) {
-                    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
-                }
-                for(let j = 0; j < canvas.height; j += step) {
-                    ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
-                }
-            }
-        }
-
-        function resetGame() {
-            bird.init();
-            pipes = [];
-            particles = [];
-            score = 0;
-            frameCount = 0;
-            scoreDisplay.innerText = score;
-        }
-
-        function triggerAction() {
-            if (!settingsModal.classList.contains('hidden')) return;
-
-            if (gameState === 'START' || gameState === 'GAMEOVER') {
-                resetGame();
-                gameState = 'PLAYING';
-                startScreen.classList.add('hidden');
-            } else if (gameState === 'PLAYING') {
-                bird.jumpAction();
-            }
-        }
-
-        function endGame() {
-            gameState = 'GAMEOVER';
-            menuTitle.innerText = "GAME OVER";
-            menuInstruction.innerText = `Final Score: ${score}\n\nTap Screen to Restart`;
-            startScreen.classList.remove('hidden');
-        }
-
-        // Global Event Handling Engine
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerAction(); }
-        });
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); triggerAction(); }, { passive: false });
-        canvas.addEventListener('mousedown', (e) => { triggerAction(); });
-
-        window.addEventListener('resize', resizeCanvas);
-        window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 200));
-
-        function gameLoop() {
-            drawBackground();
-            if (gameState === 'PLAYING') {
-                frameCount++;
-                bird.update();
-                updatePipes();
-                if(config.graphics === 'high') {
-                    for(let i = particles.length - 1; i >= 0; i--) {
-                        let p = particles[i]; p.x += p.vx; p.y += p.vy; p.alpha -= 0.04;
-                        if(p.alpha <= 0) particles.splice(i, 1);
-                    }
-                }
-            }
-            drawPipes();
+    function gameLoop() {
+        drawBackground();
+        if (gameState === 'PLAYING') {
+            frameCount++;
+            bird.update();
+            updatePipes();
             if(config.graphics === 'high') {
-                particles.forEach(p => {
-                    ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
-                    ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-                });
+                for(let i = particles.length - 1; i >= 0; i--) {
+                    let p = particles[i]; p.x += p.vx; p.y += p.vy; p.alpha -= 0.04;
+                    if(p.alpha <= 0) particles.splice(i, 1);
+                }
             }
-            bird.draw();
-            requestAnimationFrame(gameLoop);
         }
+        drawPipes();
+        if(config.graphics === 'high') {
+            particles.forEach(p => {
+                ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+            });
+        }
+        bird.draw();
+        requestAnimationFrame(gameLoop);
+    }
 
-        // Run Init setup
-        resizeCanvas();
-        gameLoop();
-    </script>
+    resizeCanvas();
+    gameLoop();
+</script>
 </body>
 </html>

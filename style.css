@@ -266,7 +266,7 @@ header {
     height: 320px;
     object-fit: cover;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    border: 1px solid white;
+    border: 1px solid #00bfff;
     border-radius: 50%;
     animation: float 4.5s ease-in-out infinite;
 }

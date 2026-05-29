@@ -221,19 +221,52 @@ header {
     color: #64748b;
 }
 
-/* --- Wavy Profile Picture Animation Layer --- */
-/* --- Circular Profile Picture Animation Layer --- */
+
+.floating-box{
+    position:relative;
+
+    animation: float 4s ease-in-out infinite;
+}
+
+
+.glow{
+    position:absolute;
+
+    width:250px;
+    height:250px;
+
+    background:#00bfff;
+
+    border-radius:50%;
+
+    filter: blur(80px);
+
+    opacity:250;
+
+    top:50%;
+    left:50%;
+
+    transform:translate(-50%, -50%);
+
+        box-shadow:
+    0 0 40px #00bfff,
+    0 0 80px #00bfff,
+    0 0 120px #00bfff;
+}
+
 .hero-image {
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 1;
 }
+
 .profile-pic {
     width: 320px;
     height: 320px;
     object-fit: cover;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    border: 5px solid var(--primary-color);
+    border: 1px solid white;
     border-radius: 50%;
     animation: float 3s ease-in-out infinite;
 }

@@ -1,28 +1,37 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    /* --- 1. Custom Pill Theme Switcher (Left Position = Light / Right = Dark) --- */
-    const pcThemeToggleBtn = document.getElementById("theme-toggle");
-    const mobileThemeToggleBtn = document.getElementById("theme-toggle-mobile");
-    const body = document.body;
+/* --- 1. Custom Pill Theme Switcher (System Auto-Detect Enabled) --- */
+const pcThemeToggleBtn = document.getElementById("theme-toggle");
+const mobileThemeToggleBtn = document.getElementById("theme-toggle-mobile");
+const body = document.body;
 
-    // Read project default storage config cache state initialization
-    const savedTheme = localStorage.getItem("theme") ? localStorage.getItem("theme") : "light";
+// 1. Check if the user manually saved a theme preference before
+const savedTheme = localStorage.getItem("theme");
+
+if (savedTheme) {
+    // If they have a saved preference, use it
     body.setAttribute("data-theme", savedTheme);
+} else {
+    // If it's their first time, check their system/device theme setting automatically
+    const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const initialTheme = prefersDarkMode ? "dark" : "light";
+    body.setAttribute("data-theme", initialTheme);
+}
 
-    function toggleTheme() {
-        const activeTheme = body.getAttribute("data-theme");
-        if (activeTheme === "dark") {
-            body.setAttribute("data-theme", "light");
-            localStorage.setItem("theme", "light");
-        } else {
-            body.setAttribute("data-theme", "dark");
-            localStorage.setItem("theme", "dark");
-        }
+function toggleTheme() {
+    const activeTheme = body.getAttribute("data-theme");
+    if (activeTheme === "dark") {
+        body.setAttribute("data-theme", "light");
+        localStorage.setItem("theme", "light"); // Remembers choice for next visit
+    } else {
+        body.setAttribute("data-theme", "dark");
+        localStorage.setItem("theme", "dark");  // Remembers choice for next visit
     }
+}
 
-    // Attach listeners across all components
-    pcThemeToggleBtn.addEventListener("click", toggleTheme);
-    mobileThemeToggleBtn.addEventListener("click", toggleTheme);
+// Attach listeners across all components
+if(pcThemeToggleBtn) pcThemeToggleBtn.addEventListener("click", toggleTheme);
+if(mobileThemeToggleBtn) mobileThemeToggleBtn.addEventListener("click", toggleTheme);
 
 
     /* --- 2. Partial Mobile Menu (70% Drawer Width Viewport Controls) --- */

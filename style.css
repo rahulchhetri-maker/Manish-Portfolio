@@ -296,8 +296,8 @@ header {
 }
 
 /* --- RE-CODED EDUCATION DESIGN MATCHING YOUR SCREENSHOT --- */
-.education-section { 
-    background-color: var(--white); 
+.education-section {
+    background-color: var(--white);
     position: relative;
 }
 [data-theme="dark"] .education-section {
@@ -475,7 +475,7 @@ footer {
     /* FIXED: Mobile Navigation Menu takes up only 70% space partial size width drawer */
     .nav-links {
         position: absolute;
-        top: 60px; 
+        top: 60px;
         left: -100%;
         width: 70%; /* Takes only partial screen width portion as requested */
         height: calc(100vh - 60px);

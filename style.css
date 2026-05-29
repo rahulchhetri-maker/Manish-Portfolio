@@ -8,7 +8,7 @@
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
 }
 
-/* Light Mode Variables */
+/* Eye-Friendly Light Variables */
 :root {
     --primary-color: #2563eb; 
     --secondary-color: #1e293b; 
@@ -16,26 +16,32 @@
     --text-color: #334155;
     --white: #ffffff;
     --navbar-bg: rgba(255, 255, 255, 0.95);
-    --card-bg: #ffffff;
-    --card-border: rgba(0, 0, 0, 0.06);
+    --card-bg: #f1f5f9;                 /* Matches light grey background from screenshot */
+    --card-border: transparent;
     --form-bg: #f8fafc;
     --switch-bg: #cbd5e1;
     --switch-knob-bg: #ffffff;
+    --icon-sun-color: #eab308;
+    --icon-moon-color: #94a3b8;
+    --timeline-line-color: #cbd5e1;
 }
 
-/* Eye-Friendly Soft Dark Mode Variables */
+/* Eye-Friendly Matte Dark Variables */
 [data-theme="dark"] {
     --primary-color: #38bdf8;
     --secondary-color: #f8fafc;
-    --light-bg: #121212;         /* Matte dark foundation */
-    --text-color: #cbd5e1;        /* Low glare soft grey typography */
-    --white: #1e1e1e;             /* Elevated dark grey card backings */
+    --light-bg: #121212;
+    --text-color: #cbd5e1;
+    --white: #1e1e1e;
     --navbar-bg: rgba(24, 24, 24, 0.96);
-    --card-bg: #1e1e1e;
+    --card-bg: #1e1e1e;                 /* Sleek dark cards */
     --card-border: rgba(255, 255, 255, 0.08);
     --form-bg: #2d2d2d;
-    --switch-bg: #0284c7;         /* Active blue channel backing */
-    --switch-knob-bg: #ffffff;
+    --switch-bg: #334155;
+    --switch-knob-bg: #38bdf8;
+    --icon-sun-color: #475569;
+    --icon-moon-color: #38bdf8;
+    --timeline-line-color: #334155;
 }
 
 body {
@@ -89,10 +95,11 @@ header {
 }
 .logo span { color: var(--primary-color); }
 
-.nav-controls {
-    display: none; /* Renders layout conditionally via Media breakpoints */
+/* Hidden on desktop wrapper */
+.nav-controls-mobile {
+    display: none;
     align-items: center;
-    gap: 15px;
+    gap: 8px;
 }
 
 .nav-links {
@@ -110,42 +117,53 @@ header {
 }
 .nav-links a:hover { color: var(--primary-color); }
 
-/* --- Premium Rectangular Rounded Pill Switch Toggle CSS --- */
-.custom-switch-btn {
-    position: relative;
-    width: 54px;
-    height: 28px;
-    background-color: var(--switch-bg);
-    border: none;
-    border-radius: 20px; /* Rounded corners */
-    cursor: pointer;
-    padding: 4px;
+/* --- Theme Toggle Switch Design (With Symbols Adjacent) --- */
+.switch-wrapper-pc {
     display: flex;
     align-items: center;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    gap: 8px;
+}
+
+.custom-switch-btn {
+    position: relative;
+    width: 46px;
+    height: 24px;
+    background-color: var(--switch-bg);
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    align-items: center;
 }
 
 .switch-knob {
     position: absolute;
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     background-color: var(--switch-knob-bg);
     border-radius: 50%;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    /* Light Mode Default Position: Slides right */
-    transform: translateX(26px); 
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    /* FIXED LOGIC: Light Mode is on the Left default position */
+    transform: translateX(2px); 
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark Mode Rule Overrides: Pulls the inner knob circle to the left */
+/* FIXED LOGIC: Dark Mode active forces moving circle knob to the Right */
 [data-theme="dark"] .switch-knob {
-    transform: translateX(2px);
+    transform: translateX(24px);
 }
 
-/* Hamburger Icon Hidden on Desktop views */
+.switch-label-icon {
+    font-size: 14px;
+}
+.switch-label-icon.sun { color: var(--icon-sun-color); }
+.switch-label-icon.moon { color: var(--icon-moon-color); }
+
+/* Hamburger Menu Icon */
 .menu-toggle {
     display: none;
-    font-size: 24px;
+    font-size: 22px;
     background: none;
     border: none;
     color: var(--secondary-color);
@@ -202,9 +220,9 @@ header {
     margin-bottom: 30px;
     color: #64748b;
 }
-[data-theme="dark"] .hero-text p { color: #94a3b8; }
 
-/* --- Responsive Profile Picture Layout area --- */
+/* --- Wavy Profile Picture Animation Layer --- */
+/* --- Circular Profile Picture Animation Layer --- */
 .hero-image {
     display: flex;
     justify-content: center;
@@ -214,10 +232,24 @@ header {
     width: 320px;
     height: 320px;
     object-fit: cover;
-    border-radius: 50%;
-    border: 8px solid var(--white);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    max-width: 100%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 4px solid var(--primary-color);
+    border-radius: 50%; /* Keeps it a perfect circle at all times */
+    /* Triggers a fluid pulsing ripple instead of a square-like morph */
+    animation: circularPulseAnimation 4s ease-in-out infinite alternate;
+}
+
+@keyframes circularPulseAnimation {
+    0% {
+        transform: scale(1);
+        border-color: var(--primary-color);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    100% {
+        transform: scale(1.03); /* Subtle breathing scale effect */
+        border-color: #3b82f6;   /* Elegant shifting gradient border tint */
+        box-shadow: 0 15px 35px rgba(59, 130, 246, 0.2);
+    }
 }
 
 /* --- About Profile Layout --- */
@@ -229,48 +261,102 @@ header {
     color: var(--text-color);
 }
 
-/* --- Academic Timeline Section --- */
-.education-section { background-color: var(--light-bg); }
-.timeline {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    margin-top: 20px;
+/* --- RE-CODED EDUCATION DESIGN MATCHING YOUR SCREENSHOT --- */
+.education-section { 
+    background-color: var(--white); 
+    position: relative;
+}
+[data-theme="dark"] .education-section {
+    background-color: var(--light-bg);
 }
 
-.timeline-card {
+.screenshot-timeline {
+    position: relative;
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+/* Vertical Center Line Spine */
+.timeline-line {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--timeline-line-color);
+    transform: translateX(-50%);
+}
+
+.timeline-item {
+    position: relative;
+    width: 50%;
+    margin-bottom: 30px;
+}
+
+/* Center circle Node Dots */
+.timeline-dot {
+    position: absolute;
+    right: -7px;
+    top: 25px;
+    width: 14px;
+    height: 14px;
+    background-color: #3b82f6;
+    border-radius: 50%;
+    z-index: 5;
+}
+.timeline-item.right .timeline-dot {
+    left: -7px;
+    right: auto;
+}
+
+/* Content cards setup styling */
+.timeline-content-card {
     background-color: var(--card-bg);
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
-    border-top: 4px solid var(--primary-color);
-    border-left: 1px solid var(--card-border);
-    border-right: 1px solid var(--card-border);
-    border-bottom: 1px solid var(--card-border);
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    width: 90%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
-.icon-box { font-size: 28px; color: var(--primary-color); margin-bottom: 15px; }
-.timeline-card h3 { color: var(--secondary-color); margin-bottom: 8px; }
-.institute { font-size: 14px; color: #64748b; font-weight: 600; margin-bottom: 5px; }
-[data-theme="dark"] .institute { color: #94a3b8; }
+.timeline-item.left {
+    left: 0;
+    display: flex;
+    justify-content: flex-start;
+}
+.timeline-item.right {
+    left: 50%;
+    display: flex;
+    justify-content: flex-end;
+}
 
-.status {
-    display: inline-block;
-    padding: 4px 12px;
-    background-color: #dbeafe;
-    color: #2563eb;
-    font-size: 12px;
+.timeline-content-card h3 {
+    font-size: 16px;
+    color: var(--secondary-color);
     font-weight: 600;
-    border-radius: 12px;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
 }
-[data-theme="dark"] .status {
-    background-color: #1e3a8a;
-    color: #38bdf8;
+.timeline-content-card .institute {
+    font-size: 14px;
+    color: #3b82f6;              /* Precise blue color match from upload picture */
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+.timeline-content-card .status-date {
+    font-size: 12px;
+    color: #718096;
+    margin-bottom: 12px;
+}
+.timeline-content-card .desc {
+    font-size: 14px;
+    color: var(--text-color);
+    line-height: 1.5;
 }
 
 /* --- Contact & App Handlers --- */
 .contact-section { background-color: var(--white); }
+[data-theme="dark"] .contact-section { background-color: var(--white); }
 .contact-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -320,74 +406,86 @@ footer {
     background-color: #111827;
     color: #94a3b8;
     padding: 30px 20px;
-    border-top: 1px solid rgba(255,255,255,0.05);
-}
-[data-theme="dark"] footer {
-    background-color: #0b0f19;
 }
 
-/* --- Scroll Animation Setup --- */
+/* --- Scroll Animation Framework --- */
 .pop-up {
     opacity: 0;
-    transform: translateY(40px) scale(0.95);
-    transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-                transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translateY(30px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
 .pop-up.active {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
 }
 
-/* --- ADAPTIVE MOBILE VIEWPORT MEDIA QUERY --- */
+/* --- MOBILE & LAPTOP RESPONSIVE MEDIA BREAKPOINTS --- */
 @media (max-width: 768px) {
     .container { padding: 50px 20px; }
     
-    /* Toggle visibility swaps: Hide PC toggle item, display mobile control block */
+    /* Config Layout swaps: Display mobile controls, activate layout toggling views */
     .pc-theme-li { display: none; }
-    .nav-controls { display: flex; } 
     .menu-toggle { display: block; }
+    .nav-controls-mobile { display: flex; }
+
+    /* Order Adjustments: Switch on left, Logo middle, Controls right */
+    .navbar {
+        padding: 12px 15px;
+    }
+    .menu-toggle { order: 1; }
+    .logo { order: 2; margin-left: 15px; margin-right: auto;}
+    .nav-controls-mobile { order: 3; }
 
     .heading-line { margin-bottom: 45px; }
 
-    /* Transform nav list container into modern overlay sliding panel */
+    /* FIXED: Mobile Navigation Menu takes up only 70% space partial size width drawer */
     .nav-links {
         position: absolute;
-        top: 64px; 
+        top: 60px; 
         left: -100%;
-        width: 100%;
-        height: calc(100vh - 64px);
+        width: 70%; /* Takes only partial screen width portion as requested */
+        height: calc(100vh - 60px);
         background-color: var(--navbar-bg);
         flex-direction: column;
         align-items: flex-start;
         padding: 40px 30px;
-        transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 15px 20px rgba(0, 0, 0, 0.05);
+        transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
         border-top: 1px solid var(--card-border);
     }
     
     .nav-links.mobile-active { left: 0; }
     .nav-links li { margin: 15px 0; margin-left: 0; }
-    .nav-links a { font-size: 20px; display: block; width: 100%; }
+    .nav-links a { font-size: 18px; width: 100%; }
 
-    /* Structural adjustments for smaller viewports */
+    /* Hero Responsive Blocks */
     .hero-container {
         flex-direction: column-reverse;
         text-align: center;
-        padding-top: 30px;
+        padding-top: 20px;
         gap: 15px;
     }
-    .hero-text h1 { font-size: 32px; }
-    .hero-text p { font-size: 18px; }
+    .hero-text h1 { font-size: 30px; }
+    .hero-text p { font-size: 16px; }
     
-    .hero-image { max-width: 250px; margin-bottom: 15px; }
-    .profile-pic { width: 100%; height: auto; max-width: 250px; border: 5px solid var(--white); }
+    .hero-image { max-width: 240px; margin-bottom: 10px; }
+    .profile-pic { width: 100%; height: auto; max-width: 240px; }
 
+    /* Convert Education Spine Timeline layout to single linear full-column block row on mobile */
+    .timeline-line { left: 16px; }
+    .timeline-item { width: 100%; margin-bottom: 25px; }
+    .timeline-item.left, .timeline-item.right { left: 0; justify-content: flex-end; }
+    .timeline-content-card { width: calc(100% - 35px); }
+    .timeline-dot { left: 9px !important; right: auto !important; top: 22px; }
+
+    /* Form contact layout */
     .contact-container { grid-template-columns: 1fr; gap: 35px; }
     .contact-info { text-align: center; }
     .info-item { justify-content: center; }
 }
 
 @media (max-width: 480px) {
-    .hero-text h1 { font-size: 26px; }
-    .hero-image, .profile-pic { max-width: 190px; }
+    .nav-links { width: 80%; } /* Handles ultra small device screen portions cleanly */
+    .hero-text h1 { font-size: 24px; }
+    .hero-image, .profile-pic { max-width: 180px; }
 }
